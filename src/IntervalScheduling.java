@@ -107,7 +107,19 @@ public class IntervalScheduling {
 
     public static ArrayList<Interval> getOptimalUnweightedSchedule(ArrayList<Interval> intervals) {
         // WRITE CODE HERE
-        return intervals;
+        intervals.sort(new EndTimeSorter());
+
+        ArrayList<Interval> optimalSchedule = new ArrayList<>();
+        Interval lastAddedInterval = null;
+
+        for (Interval interval : intervals) {
+            if (lastAddedInterval == null || isCompatible(lastAddedInterval, interval)) {
+                optimalSchedule.add(interval);
+                lastAddedInterval = interval;
+            }
+        }
+
+        return optimalSchedule;
     }
 
     public static ArrayList<Interval> getOptimalWeightedSchedule(ArrayList<Interval> intervals) {
@@ -137,21 +149,19 @@ public class IntervalScheduling {
             OPT[j] = Math.max(weightWithCurrent, weightWithoutCurrent);
         }
 
-        ArrayList<Interval> result = new ArrayList<>();
+        ArrayList<Interval> optimalSchedule = new ArrayList<>();
         int i = n;
         while (i > 0) {
             if (OPT[i] != OPT[i - 1]) {
-                result.add(intervals.get(i - 1));
+                optimalSchedule.add(intervals.get(i - 1));
                 i = p[i - 1];
             } else {
                 i--;
             }
         }
-        Collections.reverse(result);
-        intervals.clear();
-        intervals.addAll(result);
+        Collections.reverse(optimalSchedule);
 
-        return intervals;
+        return optimalSchedule;
     }
 
     public static void main (String[] args) {
