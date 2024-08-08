@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Collections;
 import java.util.TreeSet;
 
 public class IntervalScheduling {
@@ -111,6 +112,45 @@ public class IntervalScheduling {
 
     public static ArrayList<Interval> getOptimalWeightedSchedule(ArrayList<Interval> intervals) {
         // WRITE CODE HERE
+        intervals.sort(new EndTimeSorter());
+
+        int n = intervals.size();
+        int[] p = new int[n];
+        int[] OPT = new int[n + 1];
+
+
+        for (int i = 0; i < n; i++) {
+            p[i] = 0;
+            for (int j = i - 1; j >= 0; j--) {
+                if (isCompatible(intervals.get(j), intervals.get(i))) {
+                    p[i] = j + 1;
+                    break;
+                }
+            }
+        }
+
+        // Iterative-Compute-OPT
+        OPT[0] = 0;
+        for (int j = 1; j <= n; j++) {
+            int weightWithCurrent = intervals.get(j - 1).weight + OPT[p[j - 1]];
+            int weightWithoutCurrent = OPT[j - 1];
+            OPT[j] = Math.max(weightWithCurrent, weightWithoutCurrent);
+        }
+
+        ArrayList<Interval> result = new ArrayList<>();
+        int i = n;
+        while (i > 0) {
+            if (OPT[i] != OPT[i - 1]) {
+                result.add(intervals.get(i - 1));
+                i = p[i - 1];
+            } else {
+                i--;
+            }
+        }
+        Collections.reverse(result);
+        intervals.clear();
+        intervals.addAll(result);
+
         return intervals;
     }
 
